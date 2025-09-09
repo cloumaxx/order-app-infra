@@ -18,3 +18,10 @@ spec:
                 name: order-backend-svc
                 port:
                   number: 8080
+          - path: /actuator
+            pathType: Prefix
+            backend:
+              service:
+                name: order-backend-svc
+                port:
+                  number: 8080
