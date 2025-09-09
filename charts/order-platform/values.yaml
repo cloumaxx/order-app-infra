@@ -1,0 +1,29 @@
+backend:
+  image:
+    repository: docker.io/eduardoalvear/order-app
+    tag: "1.0.3"
+    pullPolicy: IfNotPresent
+  replicaCount: 2
+  resources:
+    requests: { cpu: "100m", memory: "256Mi" }
+    limits:   { cpu: "500m", memory: "512Mi" }
+  host: order.local
+
+db:
+  fullnameOverride: db-postgresql
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: "17"               
+  auth:
+    database: ordersdb
+    username: appuser
+    password: "appuser"
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+
+resources:
+  requests: { cpu: "200m", memory: "256Mi" }
+  limits:   { cpu: "500m", memory: "512Mi" }

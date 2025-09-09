@@ -1,0 +1,12 @@
+apiVersion: v2
+name: order-platform
+description: Pedido App with backend + PostgreSQL
+type: application
+version: 0.1.0
+appVersion: "1.16.0"
+
+dependencies:
+  - name: postgresql
+    alias: db
+    version: 15.5.30
+    repository: https://charts.bitnami.com/bitnami

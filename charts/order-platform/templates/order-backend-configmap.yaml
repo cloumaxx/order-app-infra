@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-backend-config
+  namespace: my-tech
+
+data:
+  DB_HOST: "db-postgresql.my-tech.svc.cluster.local"
+  DB_PORT: "5432"
+  DB_NAME: "ordersdb"
