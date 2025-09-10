@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: order-platform
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/cloumaxx/order-app-infra
+    targetRevision: main
+    path: charts/order-platform
+    helm:
+      valueFiles:
+        - values.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: my-tech
+  syncPolicy:
+    automated:
+      prune: true # borra lo que ya no esta en el git
+      selfHeal: true # repara dirft
+    syncOptions:
+      - CreateNamespace=true
