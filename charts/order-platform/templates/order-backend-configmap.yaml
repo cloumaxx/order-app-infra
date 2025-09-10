@@ -5,6 +5,5 @@ metadata:
   namespace: my-tech
 
 data:
-  DB_HOST: "db-postgresql.my-tech.svc.cluster.local"
-  DB_PORT: "5432"
-  DB_NAME: "ordersdb"
+  DB_USER: "orders_user"
+  DB_PASSWORD: "supersecret"

@@ -1,3 +1,20 @@
+secret:
+  create: false
+  name: order-backend-secret
+
+db:
+  fullnameOverride: db-postgresql
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: "17"
+  auth:
+    existingSecret: order-backend-secret
+  primary:
+    persistence:
+      enabled: true
+      size: 1Gi
+
 backend:
   image:
     repository: docker.io/eduardoalvear/order-app
@@ -8,21 +25,13 @@ backend:
     requests: { cpu: "100m", memory: "256Mi" }
     limits:   { cpu: "500m", memory: "512Mi" }
   host: order.local
+  config:
+    DB_HOST: db-postgresql.my-tech.svc.cluster.local
+    DB_PORT: "5432"
+    DB_NAME: ordersdb
+  secretName: order-backend-secret
 
-db:
-  fullnameOverride: db-postgresql
-  image:
-    registry: docker.io
-    repository: bitnami/postgresql
-    tag: "17"               
-  auth:
-    database: ordersdb
-    username: appuser
-    password: "appuser"
-  primary:
-    persistence:
-      enabled: true
-      size: 1Gi
+
 
 resources:
   requests: { cpu: "200m", memory: "256Mi" }
