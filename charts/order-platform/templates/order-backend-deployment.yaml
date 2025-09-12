@@ -50,12 +50,12 @@ spec:
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: order-backend-secret
+                  name: {{ .Values.backend.secretName }}
                   key: DB_USER
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: order-backend-secret
+                  name: {{ .Values.backend.secretName }}
                   key: DB_PASSWORD
 
             # URL completa armada desde el ConfigMap (simple y robusto)
@@ -68,7 +68,7 @@ spec:
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.db.fullnameOverride | default "db-postgresql" }}
+                  name: {{ .Values.backend.secretName }}
                   key: password   # Bitnami
 
             - name: SPRING_JPA_HIBERNATE_DDL_AUTO
