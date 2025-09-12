@@ -1,24 +1,22 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: order-platform
+  name: order-platform-root
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/cloumaxx/order-app-infra
     targetRevision: main
-    path: charts/order-platform
-    helm:
-      valueFiles:
-        - values.yaml
-
+    path: enviroment/prod                  # <- carpeta con SealedSecret y Application hijo
+    directory:
+      recurse: true                        # aplica todo el folder
   destination:
     server: https://kubernetes.default.svc
     namespace: my-tech
   syncPolicy:
     automated:
-      prune: true # borra lo que ya no esta en el git
-      selfHeal: true # repara dirft
+      prune: true
+      selfHeal: true
     syncOptions:
       - CreateNamespace=true

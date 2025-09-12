@@ -63,13 +63,15 @@ spec:
               value: "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
 
             - name: SPRING_DATASOURCE_USERNAME
-              value: {{ .Values.db.auth.username | quote }}
-
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.backend.secretName }}
+                    key: username
             - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backend.secretName }}
-                  key: password   # Bitnami
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .Values.backend.secretName }}
+                    key: password
 
             - name: SPRING_JPA_HIBERNATE_DDL_AUTO
               value: "validate"

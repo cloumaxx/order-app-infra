@@ -10,6 +10,7 @@ db:
     tag: "17"
   auth:
     existingSecret: order-backend-secret
+    database: ordersdb
   primary:
     persistence:
       enabled: true
