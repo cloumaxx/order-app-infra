@@ -47,31 +47,22 @@ spec:
                 configMapKeyRef:
                   name: order-backend-config
                   key: DB_NAME
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backend.secretName }}
-                  key: DB_USER
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backend.secretName }}
-                  key: DB_PASSWORD
 
-            # URL completa armada desde el ConfigMap (simple y robusto)
+            # Spring DataSource desde Secret
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.secretName }}
+                  key: username
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backend.secretName }}
+                  key: password
+
+            # URL
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
-
-            - name: SPRING_DATASOURCE_USERNAME
-                valueFrom:
-                  secretKeyRef:
-                    name: {{ .Values.backend.secretName }}
-                    key: username
-            - name: SPRING_DATASOURCE_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: {{ .Values.backend.secretName }}
-                    key: password
 
             - name: SPRING_JPA_HIBERNATE_DDL_AUTO
               value: "validate"
