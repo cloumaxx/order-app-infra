@@ -14,7 +14,6 @@ spec:
       labels:
         app: order-backend
     spec:
-      # Seguridad a nivel POD (no-root real)
       securityContext:
         runAsNonRoot: true
         runAsUser: 10001
@@ -22,7 +21,6 @@ spec:
         fsGroup: 10001
         seccompProfile:
           type: RuntimeDefault
-
       containers:
         - name: app
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
@@ -30,8 +28,8 @@ spec:
           ports:
             - name: http
               containerPort: 8080
-
           env:
+            # DB desde ConfigMap
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
@@ -48,7 +46,7 @@ spec:
                   name: order-backend-config
                   key: DB_NAME
 
-            # Spring DataSource desde Secret
+            # Credenciales desde Secret (OJO: keys username/password)
             - name: SPRING_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
@@ -60,26 +58,23 @@ spec:
                   name: {{ .Values.backend.secretName }}
                   key: password
 
-            # URL
+            # URL de conexión
             - name: SPRING_DATASOURCE_URL
               value: "jdbc:postgresql://$(DB_HOST):$(DB_PORT)/$(DB_NAME)"
 
-            - name: SPRING_JPA_HIBERNATE_DDL_AUTO
-              value: "validate"
-            - name: SPRING_JPA_OPEN_IN_VIEW
-              value: "false"
-            - name: SPRING_FLYWAY_ENABLED
+            # (Opcional) habilitar sub-endpoints de health si usas /readiness y /liveness
+            - name: MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE
+              value: "health,info"
+            - name: MANAGEMENT_ENDPOINT_HEALTH_PROBES_ENABLED
               value: "true"
 
-          # Da más tiempo para arrancar y conectar a DB
           startupProbe:
             httpGet:
               path: /actuator/health
               port: http
             initialDelaySeconds: 10
             periodSeconds: 5
-            failureThreshold: 30   # ~150s de ventana de arranque
-
+            failureThreshold: 30
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
@@ -88,7 +83,6 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 2
             failureThreshold: 6
-
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
@@ -97,7 +91,6 @@ spec:
             periodSeconds: 15
             timeoutSeconds: 2
             failureThreshold: 6
-
           resources:
             requests:
               cpu: {{ .Values.backend.resources.requests.cpu | quote }}
@@ -105,7 +98,5 @@ spec:
             limits:
               cpu: {{ .Values.backend.resources.limits.cpu | quote }}
               memory: {{ .Values.backend.resources.limits.memory | quote }}
-
-          # Seguridad a nivel CONTENEDOR
           securityContext:
             allowPrivilegeEscalation: false

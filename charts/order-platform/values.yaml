@@ -1,5 +1,5 @@
 secret:
-  create: false
+  create: true
   name: order-backend-secret
 
 db:
@@ -10,6 +10,9 @@ db:
     tag: "17"
   auth:
     existingSecret: order-backend-secret
+    username: orders_user
+    password: supersecret
+    postgresPassword: adminsecret
     database: ordersdb
   primary:
     persistence:
