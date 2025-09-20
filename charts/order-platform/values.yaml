@@ -21,7 +21,7 @@ backend:
   replicaCount: 2
   image:
     repository: docker.io/eduardoalvear/order-app
-    tag: "de520f5"
+    tag: "db10b4f"
     pullPolicy: IfNotPresent
   resources:
     requests: {cpu: "100m", memory: "256Mi"}
