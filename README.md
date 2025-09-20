@@ -43,7 +43,7 @@ backend:
   image:
     repository: docker.io/eduardoalvear/order-app
     tag: "de520f5"    # actualizado automáticamente por Jenkins
-  replicas: 1
+  replicaCount: 1
   resources:
     requests:
       cpu: "100m"
@@ -62,51 +62,77 @@ ingress:
 
 ---
 
-## 🚀 Despliegue manual con Helm  
+## 🚀 Despliegue manual con Helm
 
-```bash
-kubectl create namespace my-tech || true
+1. Inicia Minikube y habilita Ingress:
+   ```bash
+   minikube start --cpus=4 --memory=6g
+   minikube status
+   minikube addons enable ingress
+   ```
 
-helm upgrade --install order-platform charts/order-platform   -n my-tech   -f charts/order-platform/values.yaml
-```
+2. Instala el chart:
+   ```bash
+   helm upgrade --install order-platform charts/order-platform      -n my-tech      --create-namespace      -f charts/order-platform/values.yaml
+   ```
+
+3. Verifica recursos:
+   ```bash
+   kubectl -n my-tech get deploy,po,svc,ing
+   ```
+
+4. Prueba salud del backend (desde dentro del clúster):
+   ```bash
+   kubectl -n my-tech run curl --rm -it --image=curlimages/curl:8.9.1 --restart=Never --      curl -i http://order-backend-svc:8080/actuator/health
+   ```
+
+   **Respuesta esperada:**
+   ```
+   HTTP/1.1 200
+   Content-Type: application/vnd.spring-boot.actuator.v3+json
+
+   {"status":"UP","groups":["liveness","readiness"]}
+   ```
 
 ---
 
 ## 🔄 Argo CD
 
-### `environments/prod/application.yaml`
+1. Instalar Argo CD (incluye CRDs):
+   ```bash
+   kubectl create namespace argocd || true
+   kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+   kubectl -n argocd get pods
+   ```
 
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: order-platform
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: 'git@github.com:cloumaxx/order-app-infra.git'
-    targetRevision: main
-    path: charts/order-platform
-  destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: my-tech
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-```
+2. Crear la aplicación:
+   ```bash
+   kubectl apply -n argocd -f environments/prod/application.yaml
+   kubectl -n argocd get applications
+   ```
 
-### Crear la aplicación en Argo CD
-```bash
-kubectl apply -n argocd -f environments/prod/application.yaml
-```
+   **Ejemplo de salida:**
+   ```
+   NAME             SYNC STATUS   HEALTH STATUS
+   order-platform   OutOfSync     Healthy
+   ```
+
+3. Acceder a la UI:
+   ```bash
+   kubectl -n argocd port-forward svc/argocd-server 8080:443
+   ```
+
+   Abrir en navegador: [http://localhost:8080](http://localhost:8080)
+
+   Usuario: `admin`  
+   Password inicial:
+   ```bash
+   kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d && echo
+   ```
 
 ---
 
-## 🌐 Acceso
+## 🌐 Acceso a la app
 
 - **Con Ingress habilitado en Minikube**:
   ```bash
@@ -138,7 +164,7 @@ kubectl apply -n argocd -f environments/prod/application.yaml
   kubectl -n my-tech describe deploy/order-backend
   kubectl -n my-tech logs -l app=order-backend --tail=100
   ```
-- **Ingress en Minikube**:
+- **Ver estado de Ingress**:
   ```bash
   minikube addons enable ingress
   ```
