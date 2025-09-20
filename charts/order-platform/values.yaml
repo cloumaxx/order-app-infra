@@ -18,11 +18,11 @@ db:
       enabled: true
       size: 1Gi
 backend:
+  replicaCount: 2
   image:
     repository: docker.io/eduardoalvear/order-app
     tag: "de520f5"
     pullPolicy: IfNotPresent
-  replicaCount: 2g
   resources:
     requests: {cpu: "100m", memory: "256Mi"}
     limits: {cpu: "500m", memory: "512Mi"}
